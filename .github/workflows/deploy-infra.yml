@@ -30,20 +30,15 @@ jobs:
         terraform_version: 1.5.0
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    - name: Terraform Init with Backend
+    - name: Terraform Init
       working-directory: ./terraform
-      run: |
-        terraform init \
-          -backend-config="bucket=docker-image-4codebuild-tfstate" \
-          -backend-config="key=terraform.tfstate" \
-          -backend-config="region=us-east-1" \
-          -backend-config="dynamodb_table=docker-image-4codebuild-tfstate-lock"
+      run: terraform init
 
     - name: Terraform Plan
       working-directory: ./terraform
