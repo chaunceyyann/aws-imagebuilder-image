@@ -2,9 +2,9 @@
 data "terraform_remote_state" "other_project" {
   backend = "s3"
   config = {
-    bucket = "docker-image-4codebuild-tfstate"  # Replace with the S3 bucket name of the other project
-    key    = "terraform.tfstate"            # Replace with the state file key/path of the other project
-    region = "us-east-1"                    # Replace with the region of the other project's S3 bucket
+    bucket = "docker-image-4codebuild-tfstate"
+    key    = "terraform.tfstate"  # Using a different key for the other project's state file to avoid conflict
+    region = "us-east-1"
   }
 }
 
