@@ -1,0 +1,46 @@
+name: CloudWatchAgentComponentWindows
+description: Installs and configures AWS CloudWatch Agent on Windows Server 2022
+schemaVersion: 1.0
+
+parameters:
+  - name: ConfigS3Path
+    type: string
+    description: S3 path for CloudWatch Agent configuration file
+    default: "s3://your-bucket/cloudwatch-agent-config.json"
+
+phases:
+  - name: build
+    steps:
+      - name: InstallCloudWatchAgent
+        action: ExecutePowerShell
+        inputs:
+          commands:
+            - |
+              # Check if running on Windows Server 2022
+              $osVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
+              if ($osVersion -like "*Windows Server 2022*") {
+                Write-Host "Detected Windows Server 2022"
+              } else {
+                Write-Host "Unsupported OS: $osVersion"
+                exit 1
+              }
+              
+              # Download and install CloudWatch Agent for Windows
+              $agentUrl = "https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi"
+              $installerPath = "C:\Temp\cloudwatch-agent.msi"
+              New-Item -ItemType Directory -Force -Path "C:\Temp"
+              Invoke-WebRequest -Uri $agentUrl -OutFile $installerPath
+              
+              # Install CloudWatch Agent silently
+              Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $installerPath /quiet /norestart" -Wait
+              
+              # Optionally download a config file from S3
+              aws s3 cp {{.ConfigS3Path}} "C:\ProgramData\Amazon\AmazonCloudWatchAgent\amazon-cloudwatch-agent.json"
+              
+              # Start the CloudWatch Agent
+              & "C:\Program Files\Amazon\AmazonCloudWatchAgent\amazon-cloudwatch-agent-ctl.ps1" -a fetch-config -m ec2 -s
+              
+              Write-Host "CloudWatch Agent installed and started successfully"
+              
+              # Clean up
+              Remove-Item -Path $installerPath -Force 

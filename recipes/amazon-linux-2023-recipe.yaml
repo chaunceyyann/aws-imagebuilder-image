@@ -1,0 +1,55 @@
+name: AmazonLinux2023Recipe
+description: Recipe for Amazon Linux 2023 with Falcon Sensor, Python, Node.js, CloudWatch Agent, AWS CLI, Terraform, systemd-timesyncd, Prometheus Exporters, and Splunk Indexer
+version: 1.0.0
+components:
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/falconsensorcomponentlinux/1.0.0/1
+    parameters:
+      - name: FalconRpmUrl
+        value: "https://your-falcon-repo.com/falcon-sensor.rpm"
+      - name: FalconDebUrl
+        value: "https://your-falcon-repo.com/falcon-sensor.deb"
+      - name: CustomerId
+        value: "your-actual-customer-id"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/pythoncomponentlinux/1.0.0/1
+    parameters:
+      - name: AdditionalPackages
+        value: "boto3 awscli requests"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/nodejscomponentlinux/1.0.0/1
+    parameters:
+      - name: NvmVersion
+        value: "v0.39.1"
+      - name: NodeVersion
+        value: "--lts"
+      - name: GlobalPackages
+        value: "yarn pm2"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/cloudwatchagentcomponentlinux/1.0.0/1
+    parameters:
+      - name: ConfigS3Path
+        value: "s3://your-bucket/cloudwatch-agent-config-al2023.json"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/awsclicomponentlinux/1.0.0/1
+    parameters:
+      - name: AwsCliVersion
+        value: "latest"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/terraformtflintcomponentlinux/1.0.0/1
+    parameters:
+      - name: TerraformVersion
+        value: "1.5.0"
+      - name: TflintVersion
+        value: "v0.47.0"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/systemdtimesyncdcomponentlinux/1.0.0/1
+    parameters:
+      - name: NtpServers
+        value: "0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/prometheusexporterscomponentlinux/1.0.0/1
+    parameters:
+      - name: NodeExporterVersion
+        value: "1.6.1"
+      - name: AdditionalExporters
+        value: ""
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/splunkindexercomponentlinux/1.0.0/1
+    parameters:
+      - name: SplunkInstallerUrl
+        value: "https://download.splunk.com/products/splunk/releases/9.1.0/linux/splunk-9.1.0-9e907cedecb1.x86_64.rpm"
+      - name: AdminPassword
+        value: "your-splunk-password"
+parentImage: arn:aws:imagebuilder:us-east-1:aws:image/amazon-linux-2023-x86/x.x.x 

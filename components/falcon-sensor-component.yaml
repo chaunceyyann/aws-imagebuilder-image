@@ -1,0 +1,60 @@
+name: FalconSensorComponentLinux
+description: Installs CrowdStrike Falcon Sensor on Linux
+schemaVersion: 1.0
+
+parameters:
+  - name: FalconRpmUrl
+    type: string
+    description: URL for the Falcon Sensor RPM package for Amazon Linux
+    default: "YOUR_FALCON_SENSOR_RPM_URL"
+  - name: FalconDebUrl
+    type: string
+    description: URL for the Falcon Sensor DEB package for Ubuntu
+    default: "YOUR_FALCON_SENSOR_DEB_URL"
+  - name: CustomerId
+    type: string
+    description: Customer ID for Falcon Sensor registration
+    default: "YOUR_CUSTOMER_ID"
+
+phases:
+  - name: build
+    steps:
+      - name: InstallFalconSensor
+        action: ExecuteBash
+        inputs:
+          commands:
+            - |
+              # Detect the base OS
+              if [ -f /etc/os-release ]; then
+                . /etc/os-release
+                OS_ID=$ID
+                OS_VERSION=$VERSION_ID
+              else
+                echo "Cannot detect OS type. Exiting."
+                exit 1
+              fi
+              
+              # Update system and install based on OS type
+              if [ "$OS_ID" = "amzn" ]; then
+                echo "Detected Amazon Linux $OS_VERSION"
+                sudo dnf update -y
+                sudo dnf install -y wget
+                wget -O /tmp/falcon-sensor.rpm "{{.FalconRpmUrl}}"
+                sudo dnf install -y /tmp/falcon-sensor.rpm
+              elif [ "$OS_ID" = "ubuntu" ]; then
+                echo "Detected Ubuntu $OS_VERSION"
+                sudo apt update -y
+                sudo apt install -y wget
+                wget -O /tmp/falcon-sensor.deb "{{.FalconDebUrl}}"
+                sudo dpkg -i /tmp/falcon-sensor.deb
+              else
+                echo "Unsupported OS: $OS_ID"
+                exit 1
+              fi
+              
+              # Register sensor with your Falcon instance
+              sudo /opt/CrowdStrike/falconctl -s --cid="{{.CustomerId}}"
+              # Start the Falcon service
+              sudo systemctl enable falcon-sensor
+              sudo systemctl start falcon-sensor
+              rm -f /tmp/falcon-sensor.* 

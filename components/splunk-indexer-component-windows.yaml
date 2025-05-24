@@ -1,0 +1,55 @@
+name: SplunkIndexerComponentWindows
+description: Installs Splunk Indexer on Windows Server 2022
+schemaVersion: 1.0
+
+parameters:
+  - name: SplunkInstallerUrl
+    type: string
+    description: URL for the Splunk Indexer installer for Windows
+    default: "https://download.splunk.com/products/splunk/releases/9.1.0/windows/splunk-9.1.0-9e907cedecb1-x64-release.msi"
+  - name: AdminPassword
+    type: string
+    description: Admin password for Splunk initial setup
+    default: "changeme"
+
+phases:
+  - name: build
+    steps:
+      - name: InstallSplunkIndexer
+        action: ExecutePowerShell
+        inputs:
+          commands:
+            - |
+              # Check if running on Windows Server 2022
+              $osVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
+              if ($osVersion -like "*Windows Server 2022*") {
+                Write-Host "Detected Windows Server 2022"
+              } else {
+                Write-Host "Unsupported OS: $osVersion"
+                exit 1
+              }
+              
+              # Create temp directory
+              New-Item -ItemType Directory -Force -Path "C:\Temp"
+              
+              # Download Splunk Indexer installer for Windows
+              $installerUrl = "{{.SplunkInstallerUrl}}"
+              $installerPath = "C:\Temp\splunk-installer.msi"
+              Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+              
+              # Install Splunk Indexer silently with admin password
+              Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $installerPath /quiet /norestart AGREETOLICENSE=Yes SEED_PASSWORD={{.AdminPassword}}" -Wait
+              
+              # Clean up
+              Remove-Item -Path $installerPath -Force
+              
+              # Verify Splunk service is running
+              $service = Get-Service -Name "Splunkd" -ErrorAction SilentlyContinue
+              if ($service.Status -eq "Running") {
+                Write-Host "Splunk Indexer is running"
+              } else {
+                Write-Host "Starting Splunk Indexer"
+                Start-Service -Name "Splunkd"
+              }
+              
+              Write-Host "Splunk Indexer installed successfully" 

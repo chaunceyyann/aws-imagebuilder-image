@@ -1,0 +1,62 @@
+name: NodeJSComponentLinux
+description: Installs Node.js and npm on Linux
+schemaVersion: 1.0
+
+parameters:
+  - name: NvmVersion
+    type: string
+    description: Version of NVM to install
+    default: "v0.39.1"
+  - name: NodeVersion
+    type: string
+    description: Node.js version to install (e.g., --lts or a specific version)
+    default: "--lts"
+  - name: GlobalPackages
+    type: string
+    description: Global npm packages to install (space-separated)
+    default: "yarn"
+
+phases:
+  - name: build
+    steps:
+      - name: InstallNodeJS
+        action: ExecuteBash
+        inputs:
+          commands:
+            - |
+              # Detect the base OS
+              if [ -f /etc/os-release ]; then
+                . /etc/os-release
+                OS_ID=$ID
+                OS_VERSION=$VERSION_ID
+              else
+                echo "Cannot detect OS type. Exiting."
+                exit 1
+              fi
+              
+              # Update system based on OS type
+              if [ "$OS_ID" = "amzn" ]; then
+                echo "Detected Amazon Linux $OS_VERSION"
+                sudo dnf update -y
+                sudo dnf install -y curl
+              elif [ "$OS_ID" = "ubuntu" ]; then
+                echo "Detected Ubuntu $OS_VERSION"
+                sudo apt update -y
+                sudo apt install -y curl
+              else
+                echo "Unsupported OS: $OS_ID"
+                exit 1
+              fi
+              
+              # Install Node.js using nvm (Node Version Manager) - works for both OS
+              curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/{{.NvmVersion}}/install.sh | bash
+              . ~/.nvm/nvm.sh
+              # Install the specified version of Node.js
+              nvm install {{.NodeVersion}}
+              # Verify installation
+              node --version
+              npm --version
+              # Optionally install common npm packages globally
+              if [ -n "{{.GlobalPackages}}" ]; then
+                npm install -g {{.GlobalPackages}}
+              fi 

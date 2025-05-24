@@ -1,0 +1,49 @@
+name: WindowsServer2022Recipe
+description: Recipe for Windows Server 2022 with Falcon Sensor, Python, Node.js, CloudWatch Agent, AWS CLI, Terraform, Prometheus Exporters, and Splunk Indexer
+version: 1.0.0
+components:
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/falconsensorcomponentwindows/1.0.0/1
+    parameters:
+      - name: FalconWindowsInstallerUrl
+        value: "https://your-falcon-repo.com/falcon-sensor-windows.exe"
+      - name: CustomerId
+        value: "your-actual-customer-id"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/pythoncomponentwindows/1.0.0/1
+    parameters:
+      - name: PythonVersionUrl
+        value: "https://www.python.org/ftp/python/3.11.4/python-3.11.4-amd64.exe"
+      - name: AdditionalPackages
+        value: "boto3 awscli pandas"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/nodejscomponentwindows/1.0.0/1
+    parameters:
+      - name: NodeInstallerUrl
+        value: "https://nodejs.org/dist/v18.16.0/node-v18.16.0-x64.msi"
+      - name: GlobalPackages
+        value: "yarn webpack"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/cloudwatchagentcomponentwindows/1.0.0/1
+    parameters:
+      - name: ConfigS3Path
+        value: "s3://your-bucket/cloudwatch-agent-config-windows2022.json"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/awsclicomponentwindows/1.0.0/1
+    parameters:
+      - name: AwsCliInstallerUrl
+        value: "https://awscli.amazonaws.com/AWSCLIV2.msi"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/terraformtflintcomponentwindows/1.0.0/1
+    parameters:
+      - name: TerraformVersion
+        value: "1.5.0"
+      - name: TflintVersion
+        value: "v0.47.0"
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/prometheusexporterscomponentwindows/1.0.0/1
+    parameters:
+      - name: WindowsExporterVersion
+        value: "0.22.0"
+      - name: AdditionalExporters
+        value: ""
+  - componentArn: arn:aws:imagebuilder:us-east-1:123456789012:component/splunkindexercomponentwindows/1.0.0/1
+    parameters:
+      - name: SplunkInstallerUrl
+        value: "https://download.splunk.com/products/splunk/releases/9.1.0/windows/splunk-9.1.0-9e907cedecb1-x64-release.msi"
+      - name: AdminPassword
+        value: "your-splunk-password"
+parentImage: arn:aws:imagebuilder:us-east-1:aws:image/windows-server-2022-english-full-base-x86/x.x.x 

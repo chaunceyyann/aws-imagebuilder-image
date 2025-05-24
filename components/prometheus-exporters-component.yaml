@@ -1,0 +1,83 @@
+name: PrometheusExportersComponentLinux
+description: Installs Prometheus Exporters on Linux (Node Exporter as default)
+schemaVersion: 1.0
+
+parameters:
+  - name: NodeExporterVersion
+    type: string
+    description: Version of Node Exporter to install (e.g., latest or a specific version like 1.6.1)
+    default: "1.6.1"
+  - name: AdditionalExporters
+    type: string
+    description: Additional Prometheus exporters to install (space-separated, e.g., process-exporter)
+    default: ""
+
+phases:
+  - name: build
+    steps:
+      - name: InstallPrometheusExporters
+        action: ExecuteBash
+        inputs:
+          commands:
+            - |
+              # Detect the base OS
+              if [ -f /etc/os-release ]; then
+                . /etc/os-release
+                OS_ID=$ID
+                OS_VERSION=$VERSION_ID
+              else
+                echo "Cannot detect OS type. Exiting."
+                exit 1
+              fi
+              
+              # Install Prometheus Node Exporter based on OS type
+              if [ "$OS_ID" = "amzn" ]; then
+                echo "Detected Amazon Linux $OS_VERSION"
+                sudo dnf update -y
+                sudo dnf install -y tar gzip
+                # Download and install Node Exporter
+                wget https://github.com/prometheus/node_exporter/releases/download/v{{.NodeExporterVersion}}/node_exporter-{{.NodeExporterVersion}}.linux-amd64.tar.gz -O /tmp/node_exporter.tar.gz
+                tar xvfz /tmp/node_exporter.tar.gz -C /tmp
+                sudo mv /tmp/node_exporter-{{.NodeExporterVersion}}.linux-amd64/node_exporter /usr/local/bin/
+                rm -rf /tmp/node_exporter*
+                # Create a service for Node Exporter
+                sudo bash -c "cat > /etc/systemd/system/node-exporter.service << EOF
+[Unit]
+Description=Prometheus Node Exporter
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/node_exporter
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+                sudo systemctl daemon-reload
+                sudo systemctl enable node-exporter
+                sudo systemctl start node-exporter
+              elif [ "$OS_ID" = "ubuntu" ]; then
+                echo "Detected Ubuntu $OS_VERSION"
+                sudo apt update -y
+                sudo apt install -y prometheus-node-exporter
+                sudo systemctl enable prometheus-node-exporter
+                sudo systemctl start prometheus-node-exporter
+              else
+                echo "Unsupported OS: $OS_ID"
+                exit 1
+              fi
+              
+              # Verify Node Exporter installation
+              if systemctl is-active --quiet node-exporter || systemctl is-active --quiet prometheus-node-exporter; then
+                echo "Prometheus Node Exporter is running"
+              else
+                echo "Prometheus Node Exporter failed to start"
+                exit 1
+              fi
+              
+              # Placeholder for additional exporters (requires custom installation steps)
+              if [ -n "{{.AdditionalExporters}}" ]; then
+                echo "Additional exporters installation not implemented yet: {{.AdditionalExporters}}"
+              fi 
