@@ -40,6 +40,11 @@ jobs:
       working-directory: ./terraform
       run: terraform init
 
+    - name: Debug Terraform State Lock
+      working-directory: ./terraform
+      run: terraform state list || echo "Failed to list state, likely due to lock or initialization issue"
+      if: github.event_name == 'pull_request' || github.ref != 'refs/heads/master'
+
     - name: Terraform Plan
       working-directory: ./terraform
       run: terraform plan -out=tfplan
