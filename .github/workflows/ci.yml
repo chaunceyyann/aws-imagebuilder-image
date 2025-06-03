@@ -1,0 +1,14 @@
+name: Python CI (project)
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master, dev]
+
+jobs:
+  python-ci:
+    uses: chaunceyyann/cyan-actions/.github/workflows/python-ci.yml@master
+    with:
+      python-version: "3.11"
+      run-integration-tests: true 
