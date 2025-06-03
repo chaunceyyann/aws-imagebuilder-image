@@ -78,5 +78,23 @@ def main():
 
     sys.exit(1 if overall_fail else 0)
 
+class Validator:
+    def __init__(self):
+        """Initialize the Validator."""
+        pass
+
+    def validate(self, data):
+        """
+        Validate the input data.
+        Args:
+            data: The data to validate (e.g., dict, list, etc.)
+        Returns:
+            bool: True if data is valid, False otherwise
+        """
+        if data is None or not isinstance(data, dict) or not data:
+            return False
+        # Placeholder validation logic: check if 'key' exists in data
+        return 'key' in data
+
 if __name__ == "__main__":
     main() 
