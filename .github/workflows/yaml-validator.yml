@@ -47,13 +47,6 @@ jobs:
         run: |
           python container-yaml-validator/validator.py --file ${{ steps.changed-files.outputs.files }}
 
-      - name: Upload Validation Results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: validation-results
-          path: '**/*'
-
   sync-to-s3:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
     needs: validate
