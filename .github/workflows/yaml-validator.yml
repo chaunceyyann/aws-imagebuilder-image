@@ -26,7 +26,7 @@ jobs:
 
       - name: Find changed YAML files in image/component_specifications
         id: changed-files
-        uses: chaunceyyann/cyan-actions/.github/actions/changed-files/action.yml@master
+        uses: chaunceyyann/cyan-actions/.github/actions/changed-files@master
         with: 
           pattern: |
             ecp_image_spec/*_image_spec/image_specifications/*.yml
