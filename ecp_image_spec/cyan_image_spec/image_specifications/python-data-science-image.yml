@@ -11,7 +11,7 @@ description: |
   including numpy, scipy, and pandas for numerical and data analysis tasks.
 
 maintainer:
-  name: Data Science Team
+  name: Data Science Teams
   email: datascience@example.com
 
 dependencies:
