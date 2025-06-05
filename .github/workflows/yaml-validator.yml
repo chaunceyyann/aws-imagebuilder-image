@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-options: '--force'
 
       - name: Find changed YAML files in image/component_specifications
         id: changed-files
