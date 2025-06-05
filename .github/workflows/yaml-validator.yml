@@ -26,15 +26,13 @@ jobs:
 
       - name: Find changed YAML files in image/component_specifications
         id: changed-files
-        run: |
-          # Determine base branch for PR or push
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git fetch origin ${{ github.base_ref }}
-            git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '^ecp_image_spec/[^/]+_image_spec/(image_specifications|component_specifications)/.*\.ya?ml$' > changed_yaml.txt || true
-          else
-            git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '^ecp_image_spec/[^/]+_image_spec/(image_specifications|component_specifications)/.*\.ya?ml$' > changed_yaml.txt || true
-          fi
-          cat changed_yaml.txt
+        uses: chaunceyyann/cyan-actions/.github/actions/changed-files/action.yml@master
+        with: 
+          pattern: |
+            ecp_image_spec/*_image_spec/image_specifications/*.yml
+            ecp_image_spec/*_image_spec/image_specifications/*.yaml
+            ecp_image_spec/*_image_spec/component_specifications/*.yml
+            ecp_image_spec/*_image_spec/component_specifications/*.yaml
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
@@ -47,11 +45,7 @@ jobs:
 
       - name: Run validator on changed files
         run: |
-          if [ -s changed_yaml.txt ]; then
-            python container-yaml-validator/validator.py --file $(cat changed_yaml.txt)
-          else
-            echo "No relevant YAML files changed."
-          fi
+          python container-yaml-validator/validator.py --file ${{ steps.changed-files.outputs.files }}
 
       - name: Upload Validation Results
         if: always()
