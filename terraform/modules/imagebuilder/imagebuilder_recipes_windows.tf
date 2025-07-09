@@ -5,7 +5,7 @@ locals {
   # Create a mapping of component names to ARNs for Windows components
   windows_component_arns = {
     for name, component in aws_imagebuilder_component.windows_components : 
-    replace(name, "-component", "") => component.arn
+    name => component.arn
   }
   
   # Load all Windows recipe YAML files once
@@ -27,8 +27,8 @@ resource "aws_imagebuilder_image_recipe" "windows_recipes" {
     for_each = each.value["components"]
     
     content {
-      # The componentArn now contains the simple component name, just remove the -component suffix
-      component_arn = local.windows_component_arns[replace(component.value["componentArn"], "-component", "")]
+      # The componentArn now contains the simple component name, use it directly
+      component_arn = local.windows_component_arns[component.value["componentArn"]]
       
       dynamic "parameter" {
         for_each = component.value["parameters"]

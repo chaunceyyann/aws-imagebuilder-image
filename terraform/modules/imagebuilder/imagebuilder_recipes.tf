@@ -7,7 +7,7 @@ locals {
   # Create a mapping of component names to ARNs for Linux components
   linux_component_arns = {
     for name, component in aws_imagebuilder_component.linux_components : 
-    replace(name, "-component", "") => component.arn
+    name => component.arn
   }
   
   # Load all Linux recipe YAML files once
@@ -29,8 +29,8 @@ resource "aws_imagebuilder_image_recipe" "linux_recipes" {
     for_each = each.value["components"]
     
     content {
-      # The componentArn now contains the simple component name, just remove the -component suffix
-      component_arn = local.linux_component_arns[replace(component.value["componentArn"], "-component", "")]
+      # The componentArn now contains the simple component name, use it directly
+      component_arn = local.linux_component_arns[component.value["componentArn"]]
       
       dynamic "parameter" {
         for_each = component.value["parameters"]
