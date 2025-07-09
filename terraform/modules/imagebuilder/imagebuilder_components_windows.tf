@@ -20,7 +20,7 @@ phases:
 EOF
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 }
 
@@ -46,7 +46,7 @@ phases:
 EOF
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 }
 
@@ -72,7 +72,7 @@ phases:
 EOF
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 }
 
@@ -98,7 +98,7 @@ phases:
 EOF
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 }
 
@@ -124,7 +124,7 @@ phases:
 EOF
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 }
 
@@ -150,7 +150,7 @@ phases:
 EOF
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 }
 
@@ -176,7 +176,7 @@ phases:
 EOF
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 }
 
@@ -202,6 +202,6 @@ phases:
 EOF
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 } 

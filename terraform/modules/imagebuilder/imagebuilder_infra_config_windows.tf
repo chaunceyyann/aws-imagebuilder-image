@@ -6,6 +6,6 @@ resource "aws_imagebuilder_infrastructure_configuration" "windows_config" {
   terminate_instance_on_failure = true
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 } 

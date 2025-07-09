@@ -1,3 +1,9 @@
+module "imagebuilder" {
+  source  = "./modules/imagebuilder"
+  project = "GoldenImageBuilder"
+  region  = "us-east-1"
+}
+
 resource "aws_lambda_function" "ami_cleanup" {
   filename         = "ami_cleanup.zip"
   function_name    = "AMICleanupFunction"

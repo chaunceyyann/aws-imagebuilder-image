@@ -7,12 +7,12 @@ resource "aws_imagebuilder_distribution_configuration" "ami_distribution" {
     ami_distribution_configuration {
       name = "GoldenAMI-{{ imagebuilder:buildDate }}"
       ami_tags = {
-        Project = "StreamlinedImageCreation"
+        Project = "GoldenImageBuilder"
       }
     }
   }
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 } 

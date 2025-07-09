@@ -14,6 +14,6 @@ resource "aws_imagebuilder_image_pipeline" "windows_server_2022_pipeline" {
   }
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 } 

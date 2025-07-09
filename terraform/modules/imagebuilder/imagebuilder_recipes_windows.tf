@@ -93,6 +93,6 @@ resource "aws_imagebuilder_image_recipe" "windows_server_2022" {
   }
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 } 

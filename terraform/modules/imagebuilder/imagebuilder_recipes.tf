@@ -105,7 +105,7 @@ resource "aws_imagebuilder_image_recipe" "amazon_linux_2023" {
   }
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 }
 
@@ -216,6 +216,6 @@ resource "aws_imagebuilder_image_recipe" "ubuntu_2024" {
   }
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 } 
