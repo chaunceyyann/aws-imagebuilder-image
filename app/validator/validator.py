@@ -3,6 +3,8 @@ import argparse
 import sys
 import yaml
 import os
+import logging
+from utils.logger_utils import setup_logger
 
 
 def parse_args():
@@ -18,34 +20,55 @@ def parse_args():
             "e.g. image-recipes/*)"
         )
     )
+    parser.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        help="Enable verbose logging"
+    )
     return parser.parse_args()
 
 
-def validate_file(path):
+def validate_file(path, logger):
     try:
         with open(path) as f:
-            yaml.safe_load(f)
+            data = yaml.safe_load(f)
+        logger.debug(f"Parsed YAML for {path}: {data!r}")
+        if data is None:
+            # Accept empty files as valid
+            return []
+        if not isinstance(data, dict):
+            logger.debug(f"YAML root is not a mapping for {path}")
+            return [f"YAML root must be a mapping (dict), got {type(data).__name__}"]
         return []
+    except FileNotFoundError as e:
+        logger.debug(f"File not found: {path}")
+        return [f"File not found: {path}"]
     except Exception as e:
+        logger.debug(f"Exception for {path}: {e}")
         return [f"YAML syntax error: {e}"]
 
 
 def main():
     args = parse_args()
+    
+    # Set up logger based on verbosity
+    level = logging.DEBUG if args.verbose else logging.INFO
+    logger = setup_logger("validator", level=level, force=True)
+    
     overall_fail = False
 
     for filepath in args.file:
         if os.path.isdir(filepath):
             continue
 
-        print(f"=== Validating: {filepath} ===")
-        errors = validate_file(filepath)
+        logger.info(f"=== Validating: {filepath} ===")
+        errors = validate_file(filepath, logger)
         if errors:
             overall_fail = True
             for e in errors:
-                print(f"ERROR: {e}")
+                logger.error(f"ERROR: {e}")
         else:
-            print("OK - Valid YAML format")
+            logger.info("OK - Valid YAML format")
 
     sys.exit(1 if overall_fail else 0)
 
