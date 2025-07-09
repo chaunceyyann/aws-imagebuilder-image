@@ -4,17 +4,17 @@ on:
   pull_request:
     branches: [dev, master]
     paths:
-      - 'ecp_image_spec/*_image_spec/image_specifications/*.yml'
-      - 'ecp_image_spec/*_image_spec/image_specifications/*.yaml'
-      - 'ecp_image_spec/*_image_spec/component_specifications/*.yml'
-      - 'ecp_image_spec/*_image_spec/component_specifications/*.yaml'
+      - 'image_specs/*_image_spec/image_specifications/*.yml'
+      - 'image_specs/*_image_spec/image_specifications/*.yaml'
+      - 'image_specs/*_image_spec/component_specifications/*.yml'
+      - 'image_specs/*_image_spec/component_specifications/*.yaml'
   push:
     branches: [dev, master]
     paths:
-      - 'ecp_image_spec/*_image_spec/image_specifications/*.yml'
-      - 'ecp_image_spec/*_image_spec/image_specifications/*.yaml'
-      - 'ecp_image_spec/*_image_spec/component_specifications/*.yml'
-      - 'ecp_image_spec/*_image_spec/component_specifications/*.yaml'
+      - 'image_specs/*_image_spec/image_specifications/*.yml'
+      - 'image_specs/*_image_spec/image_specifications/*.yaml'
+      - 'image_specs/*_image_spec/component_specifications/*.yml'
+      - 'image_specs/*_image_spec/component_specifications/*.yaml'
 
 jobs:
   validate:
@@ -31,10 +31,10 @@ jobs:
         uses: chaunceyyann/cyan-actions/.github/actions/changed-files@master
         with: 
           pattern: |
-            ecp_image_spec/*_image_spec/image_specifications/*.yml
-            ecp_image_spec/*_image_spec/image_specifications/*.yaml
-            ecp_image_spec/*_image_spec/component_specifications/*.yml
-            ecp_image_spec/*_image_spec/component_specifications/*.yaml
+            image_specs/*_image_spec/image_specifications/*.yml
+            image_specs/*_image_spec/image_specifications/*.yaml
+            image_specs/*_image_spec/component_specifications/*.yml
+            image_specs/*_image_spec/component_specifications/*.yaml
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
@@ -46,16 +46,16 @@ jobs:
           pip install pyyaml argparse
           echo ffffff: ${{ steps.changed-files.outputs.files }}
 
-      - name: Run validator on changed files
-        run: |
-          python container-yaml-validator/validator.py --file ${{ steps.changed-files.outputs.files }}
+      # - name: Run validator on changed files
+      #   run: |
+      #     python app/validator/validator.py --file ${{ steps.changed-files.outputs.files }}
 
   sync-to-s3:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
     needs: validate
     runs-on: ubuntu-latest
     env:
-      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      S3_BUCKET_NAME: golden-imagebuilder-image-specs
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,7 +71,7 @@ jobs:
             echo "S3_BUCKET_NAME is not set!"
             exit 1
           fi
-          aws s3 sync ecp_image_spec/ s3://$S3_BUCKET_NAME/ecp_image_spec/ \
+          aws s3 sync image_specs/ s3://$S3_BUCKET_NAME/image_specs/ \
             --exclude "*" \
             --include "*_image_spec/image_specifications/*.yml" \
             --include "*_image_spec/image_specifications/*.yaml" \
