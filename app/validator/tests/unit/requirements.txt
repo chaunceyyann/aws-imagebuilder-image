@@ -1,3 +1,0 @@
-pytest==7.3.1
-mock==5.0.2
-# Add other dependencies as needed for your validator or app 
