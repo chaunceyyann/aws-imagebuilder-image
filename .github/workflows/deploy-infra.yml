@@ -36,14 +36,23 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install all app requirements (excluding unit tests)
+      run: |
+        find app -type f -name requirements.txt ! -path "*/tests/*" -exec pip install -r {} +
+
+    - name: Package Lambda function
+      run: |
+        cd terraform/modules/imagebuilder
+        zip -j ami_cleanup.zip ami_cleanup.py
+
     - name: Terraform Init
       working-directory: ./terraform
       run: terraform init
-
-    - name: Debug Terraform State Lock
-      working-directory: ./terraform
-      run: terraform state list || echo "Failed to list state, likely due to lock or initialization issue"
-      if: github.event_name == 'pull_request' || github.ref != 'refs/heads/master'
 
     - name: Terraform Plan
       working-directory: ./terraform
