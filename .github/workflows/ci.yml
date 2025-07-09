@@ -19,4 +19,5 @@ jobs:
     uses: chaunceyyann/cyan-actions/.github/workflows/python-ci.yml@master
     with:
       python-version: "3.11"
+      working-directory: '/app/validator'
       run-integration-tests: false 
