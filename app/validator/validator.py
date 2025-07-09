@@ -40,7 +40,7 @@ def validate_file(path, logger):
             logger.debug(f"YAML root is not a mapping for {path}")
             return [f"YAML root must be a mapping (dict), got {type(data).__name__}"]
         return []
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         logger.debug(f"File not found: {path}")
         return [f"File not found: {path}"]
     except Exception as e:

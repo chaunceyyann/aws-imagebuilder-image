@@ -23,7 +23,10 @@ class ColoredFormatter(logging.Formatter):
         
         # Add color if available
         if record.levelname in self.COLORS:
-            formatted = f"{self.COLORS[record.levelname]}{formatted}{self.COLORS['RESET']}"
+            formatted = (
+                f"{self.COLORS[record.levelname]}{formatted}"
+                f"{self.COLORS['RESET']}"
+            )
         
         return formatted
 

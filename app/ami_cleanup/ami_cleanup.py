@@ -1,6 +1,5 @@
 import boto3
 import os
-import logging
 import sys
 
 # Add the app/utils directory to the path to import logger_utils
