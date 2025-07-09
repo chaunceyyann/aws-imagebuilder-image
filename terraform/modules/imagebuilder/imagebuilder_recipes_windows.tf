@@ -3,9 +3,10 @@ locals {
   windows_recipe_files = fileset("${path.module}/../../../image_specs/golden_image_spec/image_specifications", "*windows*-recipe.yaml")
   
   # Create a mapping of component names to ARNs for Windows components
+  # The for_each key is the filename, but we need to map by the component name
   windows_component_arns = {
-    for name, component in aws_imagebuilder_component.windows_components : 
-    name => component.arn
+    for filename, component in aws_imagebuilder_component.windows_components : 
+    replace(basename(filename), ".yaml", "") => component.arn
   }
   
   # Load all Windows recipe YAML files once
@@ -39,6 +40,9 @@ resource "aws_imagebuilder_image_recipe" "windows_recipes" {
       }
     }
   }
+  
+  # Explicit dependency on Windows components
+  depends_on = [aws_imagebuilder_component.windows_components]
   
   tags = {
     Project = "GoldenImageBuilder"

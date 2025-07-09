@@ -5,9 +5,10 @@ locals {
   linux_recipes = [for file in local.linux_recipe_files : file if !can(regex(".*windows.*", file))]
   
   # Create a mapping of component names to ARNs for Linux components
+  # The for_each key is the filename, but we need to map by the component name
   linux_component_arns = {
-    for name, component in aws_imagebuilder_component.linux_components : 
-    name => component.arn
+    for filename, component in aws_imagebuilder_component.linux_components : 
+    replace(basename(filename), ".yaml", "") => component.arn
   }
   
   # Load all Linux recipe YAML files once
@@ -41,6 +42,9 @@ resource "aws_imagebuilder_image_recipe" "linux_recipes" {
       }
     }
   }
+  
+  # Explicit dependency on Linux components
+  depends_on = [aws_imagebuilder_component.linux_components]
   
   tags = {
     Project = "GoldenImageBuilder"
