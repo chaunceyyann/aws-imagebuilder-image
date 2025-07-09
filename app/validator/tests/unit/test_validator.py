@@ -6,7 +6,8 @@ from unittest.mock import patch
 try:
     from validator.validator import Validator
 except ImportError:
-    # Placeholder if validator.py doesn't exist yet or has a different structure
+    # Placeholder if validator.py doesn't exist yet or has a different
+    # structure
     class Validator:
         def __init__(self):
             pass
@@ -66,4 +67,4 @@ class TestValidator(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

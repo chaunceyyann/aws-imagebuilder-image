@@ -49,4 +49,4 @@ def lambda_handler(event, context):
             f"Cleanup complete. Kept latest {keep_latest} AMI(s), "
             f"deregistered {len(amis) - keep_latest} AMI(s)."
         )
-    } 
+    }
