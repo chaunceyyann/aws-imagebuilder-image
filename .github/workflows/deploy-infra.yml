@@ -47,8 +47,7 @@ jobs:
 
     - name: Package Lambda function
       run: |
-        cd terraform/modules/imagebuilder
-        zip -j ami_cleanup.zip ami_cleanup.py
+        zip -j terraform/modules/imagebuilder/ami_cleanup.zip app/ami_cleanup/ami_cleanup.py
 
     - name: Terraform Init
       working-directory: ./terraform
