@@ -1,9 +1,3 @@
-module "imagebuilder" {
-  source  = "./modules/imagebuilder"
-  project = "GoldenImageBuilder"
-  region  = "us-east-1"
-}
-
 resource "aws_lambda_function" "ami_cleanup" {
   filename         = "ami_cleanup.zip"
   function_name    = "AMICleanupFunction"
@@ -16,13 +10,13 @@ resource "aws_lambda_function" "ami_cleanup" {
   environment {
     variables = {
       TAG_KEY   = "Project"
-      TAG_VALUE = "StreamlinedImageCreation"
+      TAG_VALUE = "GoldenImageBuilder"
       KEEP_LATEST = "1"
     }
   }
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 }
 
@@ -79,7 +73,7 @@ resource "aws_cloudwatch_event_rule" "image_builder_completion" {
   })
 
   tags = {
-    Project = "StreamlinedImageCreation"
+    Project = "GoldenImageBuilder"
   }
 }
 
