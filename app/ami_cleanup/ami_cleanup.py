@@ -1,6 +1,6 @@
 import boto3
 import os
-from datetime import datetime
+
 
 def lambda_handler(event, context):
     ec2_client = boto3.client('ec2')
@@ -20,7 +20,11 @@ def lambda_handler(event, context):
     )
 
     # Sort AMIs by creation date
-    amis = sorted(response['Images'], key=lambda x: x['CreationDate'], reverse=True)
+    amis = sorted(
+        response['Images'],
+        key=lambda x: x['CreationDate'],
+        reverse=True
+    )
     print(f"Found {len(amis)} AMIs with tag {tag_key}={tag_value}")
 
     # Keep the latest N AMIs, deregister the rest
@@ -34,10 +38,15 @@ def lambda_handler(event, context):
         for device in ami.get('BlockDeviceMappings', []):
             if 'Ebs' in device and 'SnapshotId' in device['Ebs']:
                 snapshot_id = device['Ebs']['SnapshotId']
-                print(f"Deleting snapshot {snapshot_id} for AMI {ami_id}")
+                print(
+                    f"Deleting snapshot {snapshot_id} for AMI {ami_id}"
+                )
                 ec2_client.delete_snapshot(SnapshotId=snapshot_id)
 
     return {
         'statusCode': 200,
-        'body': f"Cleanup complete. Kept latest {keep_latest} AMI(s), deregistered {len(amis) - keep_latest} AMI(s)."
+        'body': (
+            f"Cleanup complete. Kept latest {keep_latest} AMI(s), "
+            f"deregistered {len(amis) - keep_latest} AMI(s)."
+        )
     } 

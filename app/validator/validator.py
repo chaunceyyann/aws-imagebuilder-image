@@ -4,6 +4,7 @@ import sys
 import yaml
 import os
 
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Validate YAML file syntax."
@@ -12,9 +13,13 @@ def parse_args():
         "--file",
         nargs="+",
         required=True,
-        help="YAML files to validate (shell globbing is fine, e.g. image-recipes/*)"
+        help=(
+            "YAML files to validate (shell globbing is fine, "
+            "e.g. image-recipes/*)"
+        )
     )
     return parser.parse_args()
+
 
 def validate_file(path):
     try:
@@ -23,6 +28,7 @@ def validate_file(path):
         return []
     except Exception as e:
         return [f"YAML syntax error: {e}"]
+
 
 def main():
     args = parse_args()
@@ -42,6 +48,7 @@ def main():
             print("OK - Valid YAML format")
 
     sys.exit(1 if overall_fail else 0)
+
 
 if __name__ == "__main__":
     main() 
