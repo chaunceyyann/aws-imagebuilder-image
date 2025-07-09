@@ -1,220 +1,47 @@
-resource "aws_imagebuilder_image_recipe" "amazon_linux_2023" {
-  name         = "AmazonLinux2023Recipe"
-  description  = "Recipe for Amazon Linux 2023 with multiple components"
-  version      = "1.0.0"
-  parent_image = "arn:aws:imagebuilder:us-east-1:aws:image/amazon-linux-2023-x86/x.x.x"
-
-  component {
-    component_arn = aws_imagebuilder_component.falcon_sensor.arn
-    parameter {
-      name  = "FalconRpmUrl"
-      value = "https://your-falcon-repo.com/falcon-sensor.rpm"
-    }
-    parameter {
-      name  = "FalconDebUrl"
-      value = "https://your-falcon-repo.com/falcon-sensor.deb"
-    }
-    parameter {
-      name  = "CustomerId"
-      value = "your-actual-customer-id"
-    }
+locals {
+  # Get all Linux recipe YAML files
+  linux_recipe_files = fileset("${path.module}/../../../image_specs/golden_image_spec/image_specifications", "*-recipe.yaml")
+  # Filter out Windows recipes
+  linux_recipes = [for file in local.linux_recipe_files : file if !can(regex(".*windows.*", file))]
+  
+  # Create a mapping of component names to ARNs for Linux components
+  linux_component_arns = {
+    for name, component in aws_imagebuilder_component.linux_components : 
+    replace(name, "-component", "") => component.arn
   }
-
-  component {
-    component_arn = aws_imagebuilder_component.cloudwatch_agent.arn
-    parameter {
-      name  = "ConfigS3Path"
-      value = "s3://your-bucket/cloudwatch-agent-config-al2023.json"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.python.arn
-    parameter {
-      name  = "AdditionalPackages"
-      value = "boto3 awscli requests"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.nodejs.arn
-    parameter {
-      name  = "NvmVersion"
-      value = "v0.39.1"
-    }
-    parameter {
-      name  = "NodeVersion"
-      value = "--lts"
-    }
-    parameter {
-      name  = "GlobalPackages"
-      value = "yarn pm2"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.aws_cli.arn
-    parameter {
-      name  = "AwsCliVersion"
-      value = "latest"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.terraform_tflint.arn
-    parameter {
-      name  = "TerraformVersion"
-      value = "1.5.0"
-    }
-    parameter {
-      name  = "TflintVersion"
-      value = "v0.47.0"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.systemd_timesyncd.arn
-    parameter {
-      name  = "NtpServers"
-      value = "0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.prometheus_exporters.arn
-    parameter {
-      name  = "NodeExporterVersion"
-      value = "1.6.1"
-    }
-    parameter {
-      name  = "AdditionalExporters"
-      value = ""
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.splunk_indexer.arn
-    parameter {
-      name  = "SplunkInstallerUrl"
-      value = "https://download.splunk.com/products/splunk/releases/9.1.0/linux/splunk-9.1.0-9e907cedecb1.x86_64.rpm"
-    }
-    parameter {
-      name  = "AdminPassword"
-      value = "your-splunk-password"
-    }
-  }
-
-  tags = {
-    Project = "GoldenImageBuilder"
+  
+  # Load all Linux recipe YAML files once
+  linux_recipe_data = {
+    for file in local.linux_recipes : file => yamldecode(file("${path.module}/../../../image_specs/golden_image_spec/image_specifications/${file}"))
   }
 }
 
-resource "aws_imagebuilder_image_recipe" "ubuntu_2024" {
-  name         = "Ubuntu2024Recipe"
-  description  = "Recipe for Ubuntu 2024 with multiple components"
-  version      = "1.0.0"
-  parent_image = "arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-24-04-lts-x86/x.x.x"
-
-  component {
-    component_arn = aws_imagebuilder_component.falcon_sensor.arn
-    parameter {
-      name  = "FalconRpmUrl"
-      value = "https://your-falcon-repo.com/falcon-sensor.rpm"
-    }
-    parameter {
-      name  = "FalconDebUrl"
-      value = "https://your-falcon-repo.com/falcon-sensor.deb"
-    }
-    parameter {
-      name  = "CustomerId"
-      value = "your-actual-customer-id"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.cloudwatch_agent.arn
-    parameter {
-      name  = "ConfigS3Path"
-      value = "s3://your-bucket/cloudwatch-agent-config-ubuntu2024.json"
+resource "aws_imagebuilder_image_recipe" "linux_recipes" {
+  for_each = local.linux_recipe_data
+  
+  name         = each.value["name"]
+  description  = each.value["description"]
+  version      = each.value["version"]
+  parent_image = each.value["parentImage"]
+  
+  # Map components from YAML to actual component ARNs
+  dynamic "component" {
+    for_each = each.value["components"]
+    
+    content {
+      # The componentArn now contains the simple component name, just remove the -component suffix
+      component_arn = local.linux_component_arns[replace(component.value["componentArn"], "-component", "")]
+      
+      dynamic "parameter" {
+        for_each = component.value["parameters"]
+        content {
+          name  = parameter.value["name"]
+          value = parameter.value["value"]
+        }
+      }
     }
   }
-
-  component {
-    component_arn = aws_imagebuilder_component.python.arn
-    parameter {
-      name  = "AdditionalPackages"
-      value = "boto3 awscli flask"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.nodejs.arn
-    parameter {
-      name  = "NvmVersion"
-      value = "v0.39.1"
-    }
-    parameter {
-      name  = "NodeVersion"
-      value = "--lts"
-    }
-    parameter {
-      name  = "GlobalPackages"
-      value = "yarn gulp"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.aws_cli.arn
-    parameter {
-      name  = "AwsCliVersion"
-      value = "latest"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.terraform_tflint.arn
-    parameter {
-      name  = "TerraformVersion"
-      value = "1.5.0"
-    }
-    parameter {
-      name  = "TflintVersion"
-      value = "v0.47.0"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.systemd_timesyncd.arn
-    parameter {
-      name  = "NtpServers"
-      value = "0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org"
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.prometheus_exporters.arn
-    parameter {
-      name  = "NodeExporterVersion"
-      value = "1.6.1"
-    }
-    parameter {
-      name  = "AdditionalExporters"
-      value = ""
-    }
-  }
-
-  component {
-    component_arn = aws_imagebuilder_component.splunk_indexer.arn
-    parameter {
-      name  = "SplunkInstallerUrl"
-      value = "https://download.splunk.com/products/splunk/releases/9.1.0/linux/splunk-9.1.0-9e907cedecb1_amd64.deb"
-    }
-    parameter {
-      name  = "AdminPassword"
-      value = "your-splunk-password"
-    }
-  }
-
+  
   tags = {
     Project = "GoldenImageBuilder"
   }

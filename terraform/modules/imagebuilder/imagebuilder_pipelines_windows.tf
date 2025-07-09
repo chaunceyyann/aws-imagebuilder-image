@@ -1,7 +1,9 @@
-resource "aws_imagebuilder_image_pipeline" "windows_server_2022_pipeline" {
-  name                             = "WindowsServer2022Pipeline"
-  description                      = "Pipeline for building Windows Server 2022 Golden AMI"
-  image_recipe_arn                 = aws_imagebuilder_image_recipe.windows_server_2022.arn
+resource "aws_imagebuilder_image_pipeline" "windows_pipelines" {
+  for_each = aws_imagebuilder_image_recipe.windows_recipes
+  
+  name                             = replace(each.value.name, "Recipe", "Pipeline")
+  description                      = "Pipeline for building ${each.value.name}"
+  image_recipe_arn                 = each.value.arn
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.windows_config.arn
   distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.ami_distribution.arn
   image_tests_configuration {
