@@ -14,6 +14,6 @@ jobs:
     uses: chaunceyyann/cyan-actions/.github/workflows/reusable-python-ci.yml@dev
     with:
       python-version: '3.11'
-      run-integration-tests: false
+      run-integration-tests: true
       requirements-file: app/validator/requirements.txt
     secrets: inherit
