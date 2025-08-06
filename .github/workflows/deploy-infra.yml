@@ -7,6 +7,13 @@ on:
   pull_request:
     branches: [master, dev]
     paths: [terraform/**, .github/workflows/deploy-infra.yml]
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Apply changes (not just plan)
+        required: false
+        default: false
+        type: boolean
 jobs:
   infrastructure-deploy:
     runs-on: ubuntu-latest
@@ -15,6 +22,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.10.5
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -36,9 +45,13 @@ jobs:
         run: terraform init
       - name: Terraform Plan
         working-directory: ./terraform
-        run: terraform plan -out=tfplan
-        if: github.event_name == 'pull_request' || github.ref != 'refs/heads/master'
+        run: terraform plan
+        if: github.event_name == 'pull_request' || (github.ref != 'refs/heads/master'
+          && github.event_name != 'workflow_dispatch')
       - name: Terraform Apply
         working-directory: ./terraform
-        run: terraform apply -auto-approve tfplan
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: terraform apply -auto-approve
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/master') ||
+          (github.event_name == 'workflow_dispatch' && inputs.apply == 'true')
+        env:
+          TF_LOG: INFO
