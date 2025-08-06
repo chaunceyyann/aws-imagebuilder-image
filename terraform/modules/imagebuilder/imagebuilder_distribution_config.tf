@@ -15,4 +15,4 @@ resource "aws_imagebuilder_distribution_configuration" "ami_distribution" {
   tags = {
     Project = "GoldenImageBuilder"
   }
-} 
+}

@@ -1,17 +1,16 @@
+---
 name: SplunkIndexerComponentLinux
 description: Installs Splunk Indexer on Linux
 schemaVersion: 1.0
-
 parameters:
   - name: SplunkInstallerUrl
     type: string
     description: URL for the Splunk Indexer installer for Linux (RPM or DEB)
-    default: "https://download.splunk.com/products/splunk/releases/9.1.0/linux/splunk-9.1.0-9e907cedecb1.x86_64.rpm"
+    default: https://download.splunk.com/products/splunk/releases/9.1.0/linux/splunk-9.1.0-9e907cedecb1.x86_64.rpm
   - name: AdminPassword
     type: string
     description: Admin password for Splunk initial setup
-    default: "changeme"
-
+    default: changeme
 phases:
   - name: build
     steps:
@@ -19,7 +18,7 @@ phases:
         action: ExecuteBash
         inputs:
           commands:
-            - |
+            - |-
               # Detect the base OS
               if [ -f /etc/os-release ]; then
                 . /etc/os-release
@@ -29,7 +28,7 @@ phases:
                 echo "Cannot detect OS type. Exiting."
                 exit 1
               fi
-              
+
               # Install Splunk Indexer based on OS type
               if [ "$OS_ID" = "amzn" ]; then
                 echo "Detected Amazon Linux $OS_VERSION"
@@ -51,17 +50,17 @@ phases:
                 echo "Unsupported OS: $OS_ID"
                 exit 1
               fi
-              
+
               # Start Splunk and set admin password
               sudo /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd "{{.AdminPassword}}"
-              
+
               # Enable Splunk to start on boot
               sudo /opt/splunk/bin/splunk enable boot-start
-              
+
               # Verify Splunk is running
               if ps aux | grep -q splunkd; then
                 echo "Splunk Indexer is running"
               else
                 echo "Splunk Indexer failed to start"
                 exit 1
-              fi 
+              fi

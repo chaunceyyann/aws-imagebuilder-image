@@ -89,4 +89,4 @@ resource "aws_lambda_permission" "allow_eventbridge" {
   function_name = aws_lambda_function.ami_cleanup.function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.image_builder_completion.arn
-} 
+}

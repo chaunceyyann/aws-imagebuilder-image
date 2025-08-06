@@ -1,17 +1,14 @@
+---
 name: PR Checks
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-
 permissions:
-  pull-requests: write # Allow workflow to post comments on PRs
-
+  pull-requests: write  # Allow workflow to post comments on PRs
 jobs:
   # Run the actual checks
   pre-commit:
     uses: chaunceyyann/cyan-actions/.github/workflows/reusable-pre-commit.yml@dev
-
   terraform-lint:
     uses: chaunceyyann/cyan-actions/.github/workflows/reusable-terraform-lint.yml@dev
 
@@ -20,4 +17,4 @@ jobs:
     needs: [pre-commit, terraform-lint]
     uses: chaunceyyann/cyan-actions/.github/workflows/reusable-pr-status-commenter.yml@dev
     with:
-      required-checks: "pre-commit,terraform-lint,test-actions,test-workflows,python-ci"
+      required-checks: pre-commit,terraform-lint,test-actions,test-workflows,python-ci

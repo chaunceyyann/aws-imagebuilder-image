@@ -25,7 +25,7 @@ phases:
                 echo "Cannot detect OS type. Exiting."
                 exit 1
               fi
-              
+
               # Install AWS CLI based on OS type
               if [ "$OS_ID" = "amzn" ]; then
                 echo "Detected Amazon Linux $OS_VERSION"
@@ -49,6 +49,6 @@ phases:
                 echo "Unsupported OS: $OS_ID"
                 exit 1
               fi
-              
+
               # Verify installation
-              aws --version 
+              aws --version

@@ -1,13 +1,13 @@
-import unittest
-from unittest.mock import patch, mock_open
-import sys
 import os
+import sys
 import tempfile
+import unittest
+from unittest.mock import mock_open, patch
 
 # Add the app directory to the path so we can import the validator module
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(os.path.dirname(current_dir))
-app_path = os.path.join(project_root, 'app')
+app_path = os.path.join(project_root, "app")
 sys.path.insert(0, app_path)
 
 try:
@@ -15,6 +15,7 @@ try:
 except ImportError as e:
     print(f"Import error: {e}")
     print(f"Python path: {sys.path}")
+
     # If the import fails, we'll create a mock for testing
     def validate_file(path, logger):
         """Mock validate_file function for testing."""
@@ -40,17 +41,15 @@ components:
 
     def test_validate_valid_yaml(self):
         """Test validate_file with valid YAML content."""
-        with patch('builtins.open', mock_open(read_data=self.valid_yaml_content)):
+        with patch("builtins.open", mock_open(read_data=self.valid_yaml_content)):
             # Create a mock logger
             mock_logger = unittest.mock.Mock()
-            result = validate_file('test_file.yaml', mock_logger)
-            self.assertEqual(
-                result, [], "Should return empty list for valid YAML"
-            )
+            result = validate_file("test_file.yaml", mock_logger)
+            self.assertEqual(result, [], "Should return empty list for valid YAML")
 
     def test_validate_invalid_yaml(self):
         """Test validate_file with invalid YAML content using a real temp file."""
-        with tempfile.NamedTemporaryFile('w+', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile("w+", delete=False) as tmp:
             tmp.write(self.invalid_yaml_content)
             tmp_path = tmp.name
         try:
@@ -58,21 +57,17 @@ components:
             mock_logger = unittest.mock.Mock()
             result = validate_file(tmp_path, mock_logger)
             self.assertIsInstance(result, list, "Should return a list")
-            self.assertGreater(
-                len(result), 0, "Should contain error messages"
-            )
+            self.assertGreater(len(result), 0, "Should contain error messages")
         finally:
             os.remove(tmp_path)
 
     def test_validate_empty_file(self):
         """Test validate_file with empty file."""
-        with patch('builtins.open', mock_open(read_data="")):
+        with patch("builtins.open", mock_open(read_data="")):
             # Create a mock logger
             mock_logger = unittest.mock.Mock()
-            result = validate_file('test_file.yaml', mock_logger)
-            self.assertEqual(
-                result, [], "Should return empty list for empty file"
-            )
+            result = validate_file("test_file.yaml", mock_logger)
+            self.assertEqual(result, [], "Should return empty list for empty file")
 
     def test_validate_nonexistent_file(self):
         """Test validate_file with nonexistent file using a real missing file."""
@@ -84,9 +79,7 @@ components:
         mock_logger = unittest.mock.Mock()
         result = validate_file(fake_path, mock_logger)
         self.assertIsInstance(result, list, "Should return a list")
-        self.assertGreater(
-            len(result), 0, "Should contain error messages"
-        )
+        self.assertGreater(len(result), 0, "Should contain error messages")
 
     def test_validate_file_with_unicode(self):
         """Test validate_file with unicode content."""
@@ -95,10 +88,10 @@ name: test-recipe
 description: "Test recipe with unicode: café, naïve, résumé"
 version: 1.0.0
 """
-        with patch('builtins.open', mock_open(read_data=unicode_content)):
+        with patch("builtins.open", mock_open(read_data=unicode_content)):
             # Create a mock logger
             mock_logger = unittest.mock.Mock()
-            result = validate_file('test_file.yaml', mock_logger)
+            result = validate_file("test_file.yaml", mock_logger)
             self.assertEqual(result, [], "Should handle unicode content")
 
     def test_validate_file_with_comments(self):
@@ -109,12 +102,12 @@ name: test-recipe  # Inline comment
 description: Test recipe
 version: 1.0.0
 """
-        with patch('builtins.open', mock_open(read_data=commented_content)):
+        with patch("builtins.open", mock_open(read_data=commented_content)):
             # Create a mock logger
             mock_logger = unittest.mock.Mock()
-            result = validate_file('test_file.yaml', mock_logger)
+            result = validate_file("test_file.yaml", mock_logger)
             self.assertEqual(result, [], "Should handle YAML comments")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

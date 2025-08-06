@@ -1,21 +1,23 @@
+---
 name: Ubuntu2404Recipe
-description: Golden image for Ubuntu 24.04 with monitoring (CloudWatch Agent, Splunk, Prometheus)
+description: Golden image for Ubuntu 24.04 with monitoring (CloudWatch Agent, Splunk,
+  Prometheus)
 version: 1.0.0
 components:
   - componentArn: cloudwatch-agent-component
     parameters:
       - name: ConfigS3Path
-        value: "s3://your-bucket/cloudwatch-agent-config-ubuntu2404.json"
+        value: s3://your-bucket/cloudwatch-agent-config-ubuntu2404.json
   - componentArn: prometheus-exporters-component
     parameters:
       - name: NodeExporterVersion
-        value: "1.6.1"
+        value: 1.6.1
       - name: AdditionalExporters
-        value: ""
+        value: ''
   - componentArn: splunk-indexer-component
     parameters:
       - name: SplunkInstallerUrl
-        value: "https://download.splunk.com/products/splunk/releases/9.1.0/linux/splunk-9.1.0-9e907cedecb1_amd64.deb"
+        value: https://download.splunk.com/products/splunk/releases/9.1.0/linux/splunk-9.1.0-9e907cedecb1_amd64.deb
       - name: AdminPassword
-        value: "your-splunk-password"
-parentImage: arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-24-04-lts-x86/x.x.x 
+        value: your-splunk-password
+parentImage: arn:aws:imagebuilder:us-east-1:aws:image/ubuntu-24-04-lts-x86/x.x.x

@@ -9,10 +9,10 @@ terraform {
 
 module "s3" {
   source = "./modules/s3"
-  
+
   tfstate_bucket_name     = "golden-imagebuilder-tfstate"
   image_specs_bucket_name = "golden-imagebuilder-image-specs"
-  
+
   common_tags = {
     Project = "GoldenImageBuilder"
     Environment = "Production"
@@ -24,6 +24,6 @@ module "imagebuilder" {
   source  = "./modules/imagebuilder"
   project = "GoldenImageBuilder"
   region  = "us-east-1"
-  
+
   depends_on = [module.s3]
-} 
+}

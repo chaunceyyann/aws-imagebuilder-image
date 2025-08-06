@@ -1,21 +1,23 @@
+---
 name: WindowsServer2022Recipe
-description: Golden image for Windows Server 2022 with monitoring (CloudWatch Agent, Splunk, Prometheus)
+description: Golden image for Windows Server 2022 with monitoring (CloudWatch Agent,
+  Splunk, Prometheus)
 version: 1.0.0
 components:
   - componentArn: cloudwatch-agent-component-windows
     parameters:
       - name: ConfigS3Path
-        value: "s3://your-bucket/cloudwatch-agent-config-windows2022.json"
+        value: s3://your-bucket/cloudwatch-agent-config-windows2022.json
   - componentArn: prometheus-exporters-component-windows
     parameters:
       - name: WindowsExporterVersion
-        value: "0.22.0"
+        value: 0.22.0
       - name: AdditionalExporters
-        value: ""
+        value: ''
   - componentArn: splunk-indexer-component-windows
     parameters:
       - name: SplunkInstallerUrl
-        value: "https://download.splunk.com/products/splunk/releases/9.1.0/windows/splunk-9.1.0-9e907cedecb1-x64-release.msi"
+        value: https://download.splunk.com/products/splunk/releases/9.1.0/windows/splunk-9.1.0-9e907cedecb1-x64-release.msi
       - name: AdminPassword
-        value: "your-splunk-password"
-parentImage: arn:aws:imagebuilder:us-east-1:aws:image/windows-server-2022-english-full-base-x86/x.x.x 
+        value: your-splunk-password
+parentImage: arn:aws:imagebuilder:us-east-1:aws:image/windows-server-2022-english-full-base-x86/x.x.x

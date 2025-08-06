@@ -1,13 +1,12 @@
+---
 name: CloudWatchAgentComponentLinux
 description: Installs and configures AWS CloudWatch Agent on Linux
 schemaVersion: 1.0
-
 parameters:
   - name: ConfigS3Path
     type: string
     description: S3 path for CloudWatch Agent configuration file
-    default: "s3://your-bucket/cloudwatch-agent-config.json"
-
+    default: s3://your-bucket/cloudwatch-agent-config.json
 phases:
   - name: build
     steps:
@@ -15,7 +14,7 @@ phases:
         action: ExecuteBash
         inputs:
           commands:
-            - |
+            - |-
               # Detect the base OS
               if [ -f /etc/os-release ]; then
                 . /etc/os-release
@@ -25,7 +24,7 @@ phases:
                 echo "Cannot detect OS type. Exiting."
                 exit 1
               fi
-              
+
               # Install CloudWatch Agent based on OS type
               if [ "$OS_ID" = "amzn" ]; then
                 echo "Detected Amazon Linux $OS_VERSION"
@@ -42,10 +41,10 @@ phases:
                 echo "Unsupported OS: $OS_ID"
                 exit 1
               fi
-              
+
               # Optionally download a config file from S3
               aws s3 cp {{.ConfigS3Path}} /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
               # Start the CloudWatch Agent
               sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s
               sudo systemctl enable amazon-cloudwatch-agent
-              sudo systemctl start amazon-cloudwatch-agent 
+              sudo systemctl start amazon-cloudwatch-agent

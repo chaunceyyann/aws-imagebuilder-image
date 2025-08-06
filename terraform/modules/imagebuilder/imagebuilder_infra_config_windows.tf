@@ -8,4 +8,4 @@ resource "aws_imagebuilder_infrastructure_configuration" "windows_config" {
   tags = {
     Project = "GoldenImageBuilder"
   }
-} 
+}

@@ -16,4 +16,4 @@ output "image_specs_bucket_name" {
 output "image_specs_bucket_arn" {
   description = "ARN of the image specifications bucket"
   value       = aws_s3_bucket.image_specs.arn
-} 
+}

@@ -1,21 +1,20 @@
+---
 name: NodeJSComponentLinux
 description: Installs Node.js and npm on Linux
 schemaVersion: 1.0
-
 parameters:
   - name: NvmVersion
     type: string
     description: Version of NVM to install
-    default: "v0.39.1"
+    default: v0.39.1
   - name: NodeVersion
     type: string
     description: Node.js version to install (e.g., --lts or a specific version)
-    default: "--lts"
+    default: --lts
   - name: GlobalPackages
     type: string
     description: Global npm packages to install (space-separated)
-    default: "yarn"
-
+    default: yarn
 phases:
   - name: build
     steps:
@@ -23,7 +22,7 @@ phases:
         action: ExecuteBash
         inputs:
           commands:
-            - |
+            - |-
               # Detect the base OS
               if [ -f /etc/os-release ]; then
                 . /etc/os-release
@@ -33,7 +32,7 @@ phases:
                 echo "Cannot detect OS type. Exiting."
                 exit 1
               fi
-              
+
               # Update system based on OS type
               if [ "$OS_ID" = "amzn" ]; then
                 echo "Detected Amazon Linux $OS_VERSION"
@@ -47,7 +46,7 @@ phases:
                 echo "Unsupported OS: $OS_ID"
                 exit 1
               fi
-              
+
               # Install Node.js using nvm (Node Version Manager) - works for both OS
               curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/{{.NvmVersion}}/install.sh | bash
               . ~/.nvm/nvm.sh
@@ -59,4 +58,4 @@ phases:
               # Optionally install common npm packages globally
               if [ -n "{{.GlobalPackages}}" ]; then
                 npm install -g {{.GlobalPackages}}
-              fi 
+              fi

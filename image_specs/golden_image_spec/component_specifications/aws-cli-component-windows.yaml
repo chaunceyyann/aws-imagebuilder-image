@@ -1,13 +1,12 @@
+---
 name: AwsCliComponentWindows
 description: Installs AWS CLI on Windows Server 2022
 schemaVersion: 1.0
-
 parameters:
   - name: AwsCliInstallerUrl
     type: string
     description: URL for the AWS CLI installer for Windows
-    default: "https://awscli.amazonaws.com/AWSCLIV2.msi"
-
+    default: https://awscli.amazonaws.com/AWSCLIV2.msi
 phases:
   - name: build
     steps:
@@ -15,7 +14,7 @@ phases:
         action: ExecutePowerShell
         inputs:
           commands:
-            - |
+            - |-
               # Check if running on Windows Server 2022
               $osVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
               if ($osVersion -like "*Windows Server 2022*") {
@@ -24,19 +23,19 @@ phases:
                 Write-Host "Unsupported OS: $osVersion"
                 exit 1
               }
-              
+
               # Download and install AWS CLI for Windows
               $installerUrl = "{{.AwsCliInstallerUrl}}"
               $installerPath = "C:\Temp\aws-cli-installer.msi"
               New-Item -ItemType Directory -Force -Path "C:\Temp"
               Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
-              
+
               # Install AWS CLI silently
               Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $installerPath /quiet /norestart" -Wait
-              
+
               # Verify installation - AWS CLI adds itself to PATH
               aws --version
-              
+
               # Clean up
               Remove-Item -Path $installerPath -Force
-              Write-Host "AWS CLI installed successfully" 
+              Write-Host "AWS CLI installed successfully"

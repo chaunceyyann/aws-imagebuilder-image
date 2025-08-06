@@ -1,6 +1,6 @@
 resource "aws_imagebuilder_image_pipeline" "linux_pipelines" {
   for_each = aws_imagebuilder_image_recipe.linux_recipes
-  
+
   name                             = replace(each.value.name, "Recipe", "Pipeline")
   description                      = "Pipeline for building ${each.value.name}"
   image_recipe_arn                 = each.value.arn
@@ -18,4 +18,4 @@ resource "aws_imagebuilder_image_pipeline" "linux_pipelines" {
   tags = {
     Project = "GoldenImageBuilder"
   }
-} 
+}

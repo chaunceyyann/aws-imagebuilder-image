@@ -25,7 +25,7 @@ phases:
                 echo "Cannot detect OS type. Exiting."
                 exit 1
               fi
-              
+
               # Configure systemd-timesyncd based on OS type
               if [ "$OS_ID" = "amzn" ] || [ "$OS_ID" = "ubuntu" ]; then
                 echo "Detected $PRETTY_NAME"
@@ -50,4 +50,4 @@ EOF"
               else
                 echo "Unsupported OS: $OS_ID"
                 exit 1
-              fi 
+              fi

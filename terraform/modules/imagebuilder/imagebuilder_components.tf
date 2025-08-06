@@ -7,14 +7,14 @@ locals {
 
 resource "aws_imagebuilder_component" "linux_components" {
   for_each = toset(local.linux_components)
-  
+
   name        = replace(basename(each.key), ".yaml", "")
   description = "Component from ${each.key}"
   platform    = "Linux"
   version     = "1.0.0"
   data        = file("${path.module}/../../../image_specs/golden_image_spec/component_specifications/${each.key}")
-  
+
   tags = {
     Project = "GoldenImageBuilder"
   }
-} 
+}

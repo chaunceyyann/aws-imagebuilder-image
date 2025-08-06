@@ -1,29 +1,25 @@
 #!/usr/bin/env python3
 import argparse
-import sys
-import yaml
-import os
 import logging
+import os
+import sys
+
+import yaml
 from utils.logger_utils import setup_logger
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Validate YAML file syntax."
-    )
+    parser = argparse.ArgumentParser(description="Validate YAML file syntax.")
     parser.add_argument(
         "--file",
         nargs="+",
         required=True,
         help=(
-            "YAML files to validate (shell globbing is fine, "
-            "e.g. image-recipes/*)"
-        )
+            "YAML files to validate (shell globbing is fine, " "e.g. image-recipes/*)"
+        ),
     )
     parser.add_argument(
-        "--verbose", "-v",
-        action="store_true",
-        help="Enable verbose logging"
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
     return parser.parse_args()
 
@@ -50,11 +46,11 @@ def validate_file(path, logger):
 
 def main():
     args = parse_args()
-    
+
     # Set up logger based on verbosity
     level = logging.DEBUG if args.verbose else logging.INFO
     logger = setup_logger("validator", level=level, force=True)
-    
+
     overall_fail = False
 
     for filepath in args.file:

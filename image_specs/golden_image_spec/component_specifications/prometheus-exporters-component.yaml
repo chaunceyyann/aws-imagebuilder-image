@@ -29,7 +29,7 @@ phases:
                 echo "Cannot detect OS type. Exiting."
                 exit 1
               fi
-              
+
               # Install Prometheus Node Exporter based on OS type
               if [ "$OS_ID" = "amzn" ]; then
                 echo "Detected Amazon Linux $OS_VERSION"
@@ -41,7 +41,7 @@ phases:
                 sudo mv /tmp/node_exporter-{{.NodeExporterVersion}}.linux-amd64/node_exporter /usr/local/bin/
                 rm -rf /tmp/node_exporter*
                 # Create a service for Node Exporter
-                sudo bash -c "cat > /etc/systemd/system/node-exporter.service << EOF
+                sudo bash -c 'cat > /etc/systemd/system/node-exporter.service << EOF
 [Unit]
 Description=Prometheus Node Exporter
 After=network.target
@@ -54,7 +54,7 @@ Restart=always
 
 [Install]
 WantedBy=multi-user.target
-EOF"
+EOF'
                 sudo systemctl daemon-reload
                 sudo systemctl enable node-exporter
                 sudo systemctl start node-exporter
@@ -68,7 +68,7 @@ EOF"
                 echo "Unsupported OS: $OS_ID"
                 exit 1
               fi
-              
+
               # Verify Node Exporter installation
               if systemctl is-active --quiet node-exporter || systemctl is-active --quiet prometheus-node-exporter; then
                 echo "Prometheus Node Exporter is running"
@@ -76,8 +76,8 @@ EOF"
                 echo "Prometheus Node Exporter failed to start"
                 exit 1
               fi
-              
+
               # Placeholder for additional exporters (requires custom installation steps)
               if [ -n "{{.AdditionalExporters}}" ]; then
                 echo "Additional exporters installation not implemented yet: {{.AdditionalExporters}}"
-              fi 
+              fi

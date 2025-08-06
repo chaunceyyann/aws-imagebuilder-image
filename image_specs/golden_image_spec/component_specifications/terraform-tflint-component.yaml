@@ -1,17 +1,18 @@
+---
 name: TerraformTflintComponentLinux
 description: Installs Terraform and TFLint on Linux
 schemaVersion: 1.0
-
 parameters:
   - name: TerraformVersion
     type: string
-    description: Version of Terraform to install (e.g., latest or a specific version like 1.5.0)
-    default: "1.5.0"
+    description: Version of Terraform to install (e.g., latest or a specific version
+      like 1.5.0)
+    default: 1.5.0
   - name: TflintVersion
     type: string
-    description: Version of TFLint to install (e.g., latest or a specific version like v0.47.0)
-    default: "v0.47.0"
-
+    description: Version of TFLint to install (e.g., latest or a specific version
+      like v0.47.0)
+    default: v0.47.0
 phases:
   - name: build
     steps:
@@ -19,7 +20,7 @@ phases:
         action: ExecuteBash
         inputs:
           commands:
-            - |
+            - |-
               # Detect the base OS
               if [ -f /etc/os-release ]; then
                 . /etc/os-release
@@ -29,7 +30,7 @@ phases:
                 echo "Cannot detect OS type. Exiting."
                 exit 1
               fi
-              
+
               # Install Terraform and TFLint based on OS type
               if [ "$OS_ID" = "amzn" ]; then
                 echo "Detected Amazon Linux $OS_VERSION"
@@ -59,7 +60,7 @@ phases:
                 echo "Unsupported OS: $OS_ID"
                 exit 1
               fi
-              
+
               # Verify installations
               terraform --version
-              tflint --version 
+              tflint --version

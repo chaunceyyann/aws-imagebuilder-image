@@ -28,27 +28,27 @@ phases:
                 Write-Host "Unsupported OS: $osVersion"
                 exit 1
               }
-              
+
               # Download and install Python for Windows
               $pythonUrl = "{{.PythonVersionUrl}}"
               $installerPath = "C:\Temp\python-installer.exe"
               New-Item -ItemType Directory -Force -Path "C:\Temp"
               Invoke-WebRequest -Uri $pythonUrl -OutFile $installerPath
-              
+
               # Install Python silently
               Start-Process -FilePath $installerPath -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
-              
+
               # Verify installation
               $pythonPath = "C:\Program Files\Python311\python.exe"
               & $pythonPath --version
-              
+
               # Install pip packages
               $pipPath = "C:\Program Files\Python311\Scripts\pip.exe"
               & $pipPath install --upgrade pip
               if ("{{.AdditionalPackages}}" -ne "") {
                 & $pipPath install {{.AdditionalPackages}}
               }
-              
+
               # Clean up
               Remove-Item -Path $installerPath -Force
-              Write-Host "Python installed successfully" 
+              Write-Host "Python installed successfully"

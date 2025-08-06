@@ -8,4 +8,4 @@ resource "aws_s3_bucket_versioning" "tfstate" {
   versioning_configuration {
     status = "Enabled"
   }
-} 
+}
