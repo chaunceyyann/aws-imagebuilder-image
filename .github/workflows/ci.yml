@@ -15,3 +15,4 @@ jobs:
     with:
       python-version: '3.11'
       run-integration-tests: false
+      requirements-file: app/validator/requirements.txt
