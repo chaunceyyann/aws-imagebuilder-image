@@ -1,41 +1,5 @@
-# S3 bucket for Terraform state and versioning
-resource "aws_s3_bucket" "tfstate" {
-  bucket        = var.tfstate_bucket_name
-  force_destroy = true
-
-  tags = merge(var.common_tags, {
-    Name = "Terraform State Bucket"
-    Purpose = "Terraform State Storage"
-  })
-}
-
-resource "aws_s3_bucket_versioning" "tfstate" {
-  bucket = aws_s3_bucket.tfstate.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-# Server-side encryption for the tfstate bucket
-resource "aws_s3_bucket_server_side_encryption_configuration" "tfstate" {
-  bucket = aws_s3_bucket.tfstate.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-# Block public access to the tfstate bucket
-resource "aws_s3_bucket_public_access_block" "tfstate" {
-  bucket = aws_s3_bucket.tfstate.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
+# Note: State bucket is created in terraform_bootstrap/main.tf
+# This module only manages the image specifications bucket
 
 # S3 bucket for image specifications
 resource "aws_s3_bucket" "image_specs" {

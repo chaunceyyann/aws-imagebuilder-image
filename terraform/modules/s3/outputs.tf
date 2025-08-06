@@ -1,12 +1,6 @@
-output "tfstate_bucket_name" {
-  description = "Name of the Terraform state bucket"
-  value       = aws_s3_bucket.tfstate.bucket
-}
+# State bucket is managed in terraform_bootstrap/main.tf
 
-output "tfstate_bucket_arn" {
-  description = "ARN of the Terraform state bucket"
-  value       = aws_s3_bucket.tfstate.arn
-}
+# State bucket is managed in terraform_bootstrap/main.tf
 
 output "image_specs_bucket_name" {
   description = "Name of the image specifications bucket"
