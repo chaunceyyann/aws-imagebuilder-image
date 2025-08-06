@@ -23,13 +23,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          fetch-options: '--force'
 
       - name: Find changed YAML files in image/component_specifications
         id: changed-files
         uses: chaunceyyann/cyan-actions/.github/actions/changed-files@master
-        with: 
+        with:
           pattern: |
             image_specs/*_image_spec/image_specifications/*.yml
             image_specs/*_image_spec/image_specifications/*.yaml
