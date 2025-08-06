@@ -17,4 +17,4 @@ jobs:
     needs: [pre-commit, terraform-lint]
     uses: chaunceyyann/cyan-actions/.github/workflows/reusable-pr-status-commenter.yml@dev
     with:
-      required-checks: pre-commit,terraform-lint,python-ci
+      required-checks: pre-commit,terraform-lint,python-ci,validate
