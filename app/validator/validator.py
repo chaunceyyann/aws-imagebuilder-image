@@ -5,7 +5,25 @@ import os
 import sys
 
 import yaml
-from utils.logger_utils import setup_logger
+
+# Add the app directory to the path to import logger_utils
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+try:
+    from utils.logger_utils import setup_logger
+except ImportError:
+    # Fallback to basic logging if logger_utils is not available
+    def setup_logger(name="validator", level=logging.INFO, force=True):
+        logger = logging.getLogger(name)
+        if not logger.handlers or force:
+            logger.setLevel(level)
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+        return logger
 
 
 def parse_args():

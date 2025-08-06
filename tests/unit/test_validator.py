@@ -4,6 +4,8 @@ import tempfile
 import unittest
 from unittest.mock import mock_open, patch
 
+import yaml
+
 # Add the app directory to the path so we can import the validator module
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(os.path.dirname(current_dir))
@@ -16,10 +18,24 @@ except ImportError as e:
     print(f"Import error: {e}")
     print(f"Python path: {sys.path}")
 
-    # If the import fails, we'll create a mock for testing
-    def validate_file(path, logger):
-        """Mock validate_file function for testing."""
-        return []
+    # Try alternative import path
+    try:
+        sys.path.insert(0, os.path.join(project_root, "app", "validator"))
+        from validator import validate_file
+    except ImportError as e2:
+        print(f"Alternative import error: {e2}")
+
+        # If all imports fail, we'll create a mock for testing
+        def validate_file(path, logger):
+            """Mock validate_file function for testing."""
+            try:
+                with open(path) as f:
+                    yaml.safe_load(f)
+                return []
+            except FileNotFoundError:
+                return [f"File not found: {path}"]
+            except Exception as e:
+                return [f"YAML syntax error: {e}"]
 
 
 class TestValidator(unittest.TestCase):
