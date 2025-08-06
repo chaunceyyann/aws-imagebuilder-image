@@ -19,7 +19,7 @@ To address these issues, we propose establishing a **streamlined, automated proc
 - Implementing **validation workflows** to ensure YAML configurations are correctly formatted and meet requirements.
 - Supporting multiple operating systems: **Amazon Linux 2023**, **Ubuntu 22.04**, **Windows Server 2022**, with plans for **CentOS** in the future.
 
-This initiative will enhance security, reduce maintenance overhead, and improve scalability for customer workloads, aligning with Bank of America's compliance and CI/CD optimization goals.
+This initiative will enhance security, reduce maintenance overhead, and improve scalability for customer workloads, aligning with Bank of America’s compliance and CI/CD optimization goals.
 
 ## High-Level Overview
 
@@ -208,6 +208,11 @@ Customers can add the following components via YAML configuration, built on Gold
 - **Risk**: Immutable ECR tags require unique tags.
   - **Mitigation**: Use dynamic tags (e.g., `v${{ github.run_id }}`), verified in `test_ecr.tf`.
 
+## Context
+- **Current Project**: `aws-codebuild-docker-image` (`master`, account ID `643843550246`) uses Terraform for `docker-image-4codebuild-repo` (ECR) and `docker-image-4codebuild` (CodeBuild runner), with S3/DynamoDB backend.
+- **Previous Issue**: “Something isn’t working” with CodePipeline (e.g., GitHub Connection ARN, IAM). This proposal replaces CodePipeline with GHA, addressing maintenance issues.
+- **Technical**: `Dockerfile` includes OpenSSL to prevent `SSL_ERROR_SYSCALL`, supporting Git operations (Oh My Posh troubleshooting).
+- **Financial**: $24,000 401(k) (30% BAC, 60% S&P 500, 10% Russell 2000 G1) and $14,024.20 brokerage suggest CI/CD optimization enhances SRE efficiency at Bank of America.
 
 ## Next Steps
 - **Implement Golden Image Pipeline**: Develop EC2 Image Builder and Dockerfile-based workflows.
@@ -218,5 +223,5 @@ Customers can add the following components via YAML configuration, built on Gold
   - GitHub repo owner (username/organization)?
   - Status of `codebuild-docker-image-4codebuild-...` runner setup?
   - Specific scanner configurations (e.g., Trivy/Grype thresholds)?
-  - Details on "something isn't working" for further debugging?
+  - Details on “something isn’t working” for further debugging?
 - **Provide Feedback**: Confirm if this proposal meets needs or requires adjustments (e.g., additional components, OSes).

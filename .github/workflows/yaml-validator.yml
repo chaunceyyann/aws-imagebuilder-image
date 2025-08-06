@@ -1,0 +1,76 @@
+---
+name: YAML Validator and S3 Sync
+on:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - image_specs/*_image_spec/image_specifications/*.yml
+      - image_specs/*_image_spec/image_specifications/*.yaml
+      - image_specs/*_image_spec/component_specifications/*.yml
+      - image_specs/*_image_spec/component_specifications/*.yaml
+  push:
+    branches: [dev, master]
+    paths:
+      - image_specs/*_image_spec/image_specifications/*.yml
+      - image_specs/*_image_spec/image_specifications/*.yaml
+      - image_specs/*_image_spec/component_specifications/*.yml
+      - image_specs/*_image_spec/component_specifications/*.yaml
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Find changed YAML files in image/component_specifications
+        id: changed-files
+        uses: chaunceyyann/cyan-actions/.github/actions/changed-files@master
+        with:
+          pattern: |
+            image_specs/*_image_spec/image_specifications/*.yml
+            image_specs/*_image_spec/image_specifications/*.yaml
+            image_specs/*_image_spec/component_specifications/*.yml
+            image_specs/*_image_spec/component_specifications/*.yaml
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: |
+          pip install pyyaml argparse
+          echo changed_files: ${{ steps.changed-files.outputs.files }}
+
+      # - name: Run validator on changed files
+      #   run: |
+      #     python app/validator/validator.py --file ${{ steps.changed-files.outputs.files }}
+  sync-to-s3:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref
+      == 'refs/heads/dev')
+    needs: validate
+    runs-on: ubuntu-latest
+    env:
+      S3_BUCKET_NAME: golden-imagebuilder-image-specs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Install AWS CLI
+        run: |
+          pip install --upgrade pip
+          pip install awscli
+      - name: Sync image/component_specifications to S3
+        run: |-
+          if [ -z "$S3_BUCKET_NAME" ]; then
+            echo "S3_BUCKET_NAME is not set!"
+            exit 1
+          fi
+          aws s3 sync image_specs/ s3://$S3_BUCKET_NAME/image_specs/ \
+            --exclude "*" \
+            --include "*_image_spec/image_specifications/*.yml" \
+            --include "*_image_spec/image_specifications/*.yaml" \
+            --include "*_image_spec/component_specifications/*.yml" \
+            --include "*_image_spec/component_specifications/*.yaml"

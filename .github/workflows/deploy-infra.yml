@@ -1,52 +1,44 @@
+---
 name: Deploy Infrastructure with Terraform
-
 on:
   push:
-    branches:
-      - master
-    paths:
-      - 'terraform/**'
+    branches: [master, dev]
+    paths: [terraform/**, .github/workflows/deploy-infra.yml]
   pull_request:
-    branches:
-      - master
-    paths:
-      - 'terraform/**'
-
+    branches: [master, dev]
+    paths: [terraform/**, .github/workflows/deploy-infra.yml]
 jobs:
-  terraform:
+  infrastructure-deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.5.0
-
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    - name: Terraform Init with Backend
-      working-directory: ./terraform
-      run: |
-        terraform init \
-          -backend-config="bucket=docker-image-4codebuild-tfstate" \
-          -backend-config="key=terraform.tfstate" \
-          -backend-config="region=us-east-1" \
-          -backend-config="dynamodb_table=docker-image-4codebuild-tfstate-lock"
-
-    - name: Terraform Plan
-      working-directory: ./terraform
-      run: terraform plan -out=tfplan
-      if: github.event_name == 'pull_request'
-
-    - name: Terraform Apply
-      working-directory: ./terraform
-      run: terraform apply -auto-approve tfplan
-      if: github.event_name == 'push' 
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install all app requirements (excluding unit tests)
+        run: |
+          find app -type f -name requirements.txt ! -path "*/tests/*" -exec pip install -r {} +
+      - name: Package Lambda function
+        run: |
+          zip -j terraform/modules/imagebuilder/ami_cleanup.zip app/ami_cleanup/ami_cleanup.py
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
+      - name: Terraform Plan
+        working-directory: ./terraform
+        run: terraform plan -out=tfplan
+        if: github.event_name == 'pull_request' || github.ref != 'refs/heads/master'
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply -auto-approve tfplan
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'

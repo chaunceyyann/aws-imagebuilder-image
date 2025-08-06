@@ -1,0 +1,23 @@
+---
+name: AmazonLinux2023Recipe
+description: Golden image for Amazon Linux 2023 with monitoring (CloudWatch Agent,
+  Splunk, Prometheus)
+version: 1.0.0
+components:
+  - componentArn: cloudwatch-agent-component
+    parameters:
+      - name: ConfigS3Path
+        value: s3://your-bucket/cloudwatch-agent-config-al2023.json
+  - componentArn: prometheus-exporters-component
+    parameters:
+      - name: NodeExporterVersion
+        value: 1.6.1
+      - name: AdditionalExporters
+        value: ''
+  - componentArn: splunk-indexer-component
+    parameters:
+      - name: SplunkInstallerUrl
+        value: https://download.splunk.com/products/splunk/releases/9.1.0/linux/splunk-9.1.0-9e907cedecb1.x86_64.rpm
+      - name: AdminPassword
+        value: your-splunk-password
+parentImage: arn:aws:imagebuilder:us-east-1:aws:image/amazon-linux-2023-x86/x.x.x

@@ -1,0 +1,19 @@
+---
+name: CI Pipeline
+on:
+  push:
+    branches: [master, dev]
+    paths:
+      - app/**  # Trigger only when files in app directory or subdirectories are updated
+  pull_request:
+    branches: [master, dev]
+    paths:
+      - app/**  # Trigger only when files in app directory or subdirectories are updated
+jobs:
+  python-ci:
+    uses: chaunceyyann/cyan-actions/.github/workflows/reusable-python-ci.yml@dev
+    with:
+      python-version: '3.11'
+      run-integration-tests: true
+      requirements-file: app/validator/requirements.txt
+    secrets: inherit

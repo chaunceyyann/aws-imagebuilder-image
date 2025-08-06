@@ -1,0 +1,51 @@
+---
+name: NodeJSComponentWindows
+description: Installs Node.js and npm on Windows Server 2022
+schemaVersion: 1.0
+parameters:
+  - name: NodeInstallerUrl
+    type: string
+    description: URL for the Node.js installer for Windows
+    default: https://nodejs.org/dist/v18.16.0/node-v18.16.0-x64.msi
+  - name: GlobalPackages
+    type: string
+    description: Global npm packages to install (space-separated)
+    default: yarn
+phases:
+  - name: build
+    steps:
+      - name: InstallNodeJS
+        action: ExecutePowerShell
+        inputs:
+          commands:
+            - |-
+              # Check if running on Windows Server 2022
+              $osVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
+              if ($osVersion -like "*Windows Server 2022*") {
+                Write-Host "Detected Windows Server 2022"
+              } else {
+                Write-Host "Unsupported OS: $osVersion"
+                exit 1
+              }
+
+              # Download and install Node.js for Windows
+              $nodeUrl = "{{.NodeInstallerUrl}}"
+              $installerPath = "C:\Temp\node-installer.msi"
+              New-Item -ItemType Directory -Force -Path "C:\Temp"
+              Invoke-WebRequest -Uri $nodeUrl -OutFile $installerPath
+
+              # Install Node.js silently
+              Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $installerPath /quiet /norestart" -Wait
+
+              # Verify installation - Node.js adds itself to PATH
+              node --version
+              npm --version
+
+              # Optionally install common npm packages globally
+              if ("{{.GlobalPackages}}" -ne "") {
+                npm install -g {{.GlobalPackages}}
+              }
+
+              # Clean up
+              Remove-Item -Path $installerPath -Force
+              Write-Host "Node.js installed successfully"

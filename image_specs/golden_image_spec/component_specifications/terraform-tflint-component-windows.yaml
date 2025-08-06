@@ -1,0 +1,61 @@
+---
+name: TerraformTflintComponentWindows
+description: Installs Terraform and TFLint on Windows Server 2022
+schemaVersion: 1.0
+parameters:
+  - name: TerraformVersion
+    type: string
+    description: Version of Terraform to install (e.g., latest or a specific version
+      like 1.5.0)
+    default: 1.5.0
+  - name: TflintVersion
+    type: string
+    description: Version of TFLint to install (e.g., latest or a specific version
+      like v0.47.0)
+    default: v0.47.0
+phases:
+  - name: build
+    steps:
+      - name: InstallTerraformTflint
+        action: ExecutePowerShell
+        inputs:
+          commands:
+            - |-
+              # Check if running on Windows Server 2022
+              $osVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
+              if ($osVersion -like "*Windows Server 2022*") {
+                Write-Host "Detected Windows Server 2022"
+              } else {
+                Write-Host "Unsupported OS: $osVersion"
+                exit 1
+              }
+
+              # Create temp directory
+              New-Item -ItemType Directory -Force -Path "C:\Temp"
+
+              # Download and install Terraform for Windows
+              $terraformUrl = "https://releases.hashicorp.com/terraform/{{.TerraformVersion}}/terraform_{{.TerraformVersion}}_windows_amd64.zip"
+              $terraformZip = "C:\Temp\terraform.zip"
+              Invoke-WebRequest -Uri $terraformUrl -OutFile $terraformZip
+              Expand-Archive -Path $terraformZip -DestinationPath "C:\Program Files\Terraform" -Force
+              Remove-Item -Path $terraformZip -Force
+
+              # Add Terraform to PATH
+              $env:Path += ";C:\Program Files\Terraform"
+              [Environment]::SetEnvironmentVariable("Path", $env:Path, [EnvironmentVariableTarget]::Machine)
+
+              # Download and install TFLint for Windows
+              $tflintUrl = "https://github.com/terraform-linters/tflint/releases/download/{{.TflintVersion}}/tflint_windows_amd64.zip"
+              $tflintZip = "C:\Temp\tflint.zip"
+              Invoke-WebRequest -Uri $tflintUrl -OutFile $tflintZip
+              Expand-Archive -Path $tflintZip -DestinationPath "C:\Program Files\TFLint" -Force
+              Remove-Item -Path $tflintZip -Force
+
+              # Add TFLint to PATH
+              $env:Path += ";C:\Program Files\TFLint"
+              [Environment]::SetEnvironmentVariable("Path", $env:Path, [EnvironmentVariableTarget]::Machine)
+
+              # Verify installations
+              terraform --version
+              tflint --version
+              Write-Host "Terraform and TFLint installed successfully"

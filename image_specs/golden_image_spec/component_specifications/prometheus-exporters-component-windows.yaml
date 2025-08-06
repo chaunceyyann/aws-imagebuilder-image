@@ -1,0 +1,60 @@
+---
+name: PrometheusExportersComponentWindows
+description: Installs Prometheus Exporters on Windows Server 2022 (Windows Exporter
+  as default)
+schemaVersion: 1.0
+parameters:
+  - name: WindowsExporterVersion
+    type: string
+    description: Version of Windows Exporter to install (e.g., latest or a specific
+      version like 0.22.0)
+    default: 0.22.0
+  - name: AdditionalExporters
+    type: string
+    description: Additional Prometheus exporters to install (space-separated)
+    default: ''
+phases:
+  - name: build
+    steps:
+      - name: InstallPrometheusExporters
+        action: ExecutePowerShell
+        inputs:
+          commands:
+            - |-
+              # Check if running on Windows Server 2022
+              $osVersion = (Get-WmiObject -class Win32_OperatingSystem).Caption
+              if ($osVersion -like "*Windows Server 2022*") {
+                Write-Host "Detected Windows Server 2022"
+              } else {
+                Write-Host "Unsupported OS: $osVersion"
+                exit 1
+              }
+
+              # Create temp directory
+              New-Item -ItemType Directory -Force -Path "C:\Temp"
+
+              # Download and install Windows Exporter for Windows
+              $exporterUrl = "https://github.com/prometheus-community/windows_exporter/releases/download/v{{.WindowsExporterVersion}}/windows_exporter-{{.WindowsExporterVersion}}-amd64.msi"
+              $installerPath = "C:\Temp\windows-exporter.msi"
+              Invoke-WebRequest -Uri $exporterUrl -OutFile $installerPath
+
+              # Install Windows Exporter silently
+              Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $installerPath /quiet /norestart" -Wait
+
+              # Clean up
+              Remove-Item -Path $installerPath -Force
+
+              # Verify service is running
+              $service = Get-Service -Name "windows_exporter" -ErrorAction SilentlyContinue
+              if ($service.Status -eq "Running") {
+                Write-Host "Prometheus Windows Exporter is running"
+              } else {
+                Write-Host "Starting Prometheus Windows Exporter"
+                Start-Service -Name "windows_exporter"
+              }
+
+              # Placeholder for additional exporters
+              if ("{{.AdditionalExporters}}" -ne "") {
+                Write-Host "Additional exporters installation not implemented yet: {{.AdditionalExporters}}"
+              }
+              Write-Host "Prometheus Windows Exporter installed successfully"
