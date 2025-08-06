@@ -9,15 +9,3 @@ resource "aws_s3_bucket_versioning" "tfstate" {
     status = "Enabled"
   }
 }
-
-resource "aws_s3_bucket" "image_specs" {
-  bucket = "golden-imagebuilder-image-specs"
-  force_destroy = true
-}
-
-resource "aws_s3_bucket_versioning" "image_specs" {
-  bucket = aws_s3_bucket.image_specs.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}

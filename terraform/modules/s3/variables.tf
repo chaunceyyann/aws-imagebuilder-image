@@ -1,7 +1,4 @@
-variable "tfstate_bucket_name" {
-  description = "Name of the S3 bucket for Terraform state"
-  type        = string
-}
+# State bucket is managed in terraform_bootstrap/main.tf
 
 variable "image_specs_bucket_name" {
   description = "Name of the S3 bucket for image specifications"
