@@ -16,8 +16,7 @@ on:
 
 jobs:
   python-ci:
-    uses: chaunceyyann/cyan-actions/.github/workflows/python-ci.yml@master
+    uses: chaunceyyann/cyan-actions/.github/workflows/reusable-python-ci.yml@dev
     with:
       python-version: "3.11"
-      working-directory: ''
-      run-integration-tests: false 
+      run-integration-tests: false
