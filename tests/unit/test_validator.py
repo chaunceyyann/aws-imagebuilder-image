@@ -13,7 +13,7 @@ app_path = os.path.join(project_root, "app")
 sys.path.insert(0, app_path)
 
 try:
-    from validator.validator import validate_file
+    from validator import validate_file
 except ImportError as e:
     print(f"Import error: {e}")
     print(f"Python path: {sys.path}")
