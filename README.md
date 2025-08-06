@@ -219,4 +219,4 @@ Customers can add the following components via YAML configuration, built on Gold
   - Status of `codebuild-docker-image-4codebuild-...` runner setup?
   - Specific scanner configurations (e.g., Trivy/Grype thresholds)?
   - Details on "something isn't working" for further debugging?
-- **Provide Feedback**: Confirm if this proposal meets needs or requires adjustments (e.g., additional components, OSes). 
+- **Provide Feedback**: Confirm if this proposal meets needs or requires adjustments (e.g., additional components, OSes).
